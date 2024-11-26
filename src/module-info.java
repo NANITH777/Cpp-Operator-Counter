@@ -4,5 +4,5 @@
 /**
  * 
  */
-module odev1 {
+module counter {
 }
