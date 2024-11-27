@@ -26,4 +26,15 @@ public class OperatorCounter {
             System.out.println("Dosya okuma hatası: " + e.getMessage());
         }
     }
+
+    private static String dosyaOku(String dosyaYolu) throws IOException {
+        StringBuilder icerik = new StringBuilder();
+        try (BufferedReader okuyucu = new BufferedReader(new FileReader(dosyaYolu))) {
+            String satir;
+            while ((satir = okuyucu.readLine()) != null) {
+                icerik.append(satir).append("\n");
+            }
+        }
+        return icerik.toString();
+    }
 }
