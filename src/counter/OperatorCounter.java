@@ -45,4 +45,9 @@ public class OperatorCounter {
         icerik = icerik.replaceAll("//.*", "");
         return icerik;
     }
+
+    private static String stringleriKaldir(String icerik) {
+        // String ifadelerini kaldır
+        return icerik.replaceAll("\"[^\"\\\\]*(\\\\.[^\"\\\\]*)*\"", "");
+    }
 }
