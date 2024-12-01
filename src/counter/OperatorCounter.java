@@ -37,4 +37,12 @@ public class OperatorCounter {
         }
         return icerik.toString();
     }
+
+    private static String yorumlariKaldir(String icerik) {
+        // Çok satırlı yorumları kaldır
+        icerik = icerik.replaceAll("/\\*[^*]*\\*+(?:[^/*][^*]*\\*+)*/", "");
+        // Tek satırlı yorumları kaldır
+        icerik = icerik.replaceAll("//.*", "");
+        return icerik;
+    }
 }
