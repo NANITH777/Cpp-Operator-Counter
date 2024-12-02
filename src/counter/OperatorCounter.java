@@ -50,4 +50,9 @@ public class OperatorCounter {
         // String ifadelerini kaldır
         return icerik.replaceAll("\"[^\"\\\\]*(\\\\.[^\"\\\\]*)*\"", "");
     }
+
+    private static String includeDirektifleriniKaldir(String icerik) {
+        // #include ve onun < > kısmını kaldır
+        return icerik.replaceAll("#include\\s*<[^>]*>", "");
+    }
 }
