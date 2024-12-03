@@ -66,6 +66,23 @@ public class OperatorCounter {
             sayaclar[0]++;
         }
 
+        // İkili operatörler
+        Pattern ikiliDesen = Pattern.compile(
+    	    "\\+=|-=|\\*=|/=|%=|==|!=|<=|>=|&&|\\|\\||<<|>>|&=|\\|=|\\^=|" + // Karşılaştırma ve atama operatörleri
+    	    "(?<![=!<>])=(?![=])|" + // Basit atama operatörü (=)
+    	    "(?<![+])\\+(?![+=\\d])|" + // Aritmetik operatör (+), rakamdan sonra gelmemesi için
+    	    "(?<![-])\\-(?![-=\\d])|" + // Aritmetik operatör (-), rakamdan sonra gelmemesi için
+    	    "(?<![\\w\\*])\\*(?![=\\w])|" + // Aritmetik operatör (*), Pointer hariç
+    	    "/(?!=)|" +               // Aritmetik operatör (/)
+    	    "%(?!=)|" +               // Aritmetik operatör (%)
+    	    "(?<!<)>(?![>=])|" +      // Karşılaştırma operatörü (>)
+    	    "<(?![<=])"               // Karşılaştırma operatörü (<)
+    	);
+        Matcher ikiliEslesme = ikiliDesen.matcher(icerik);
+        while (ikiliEslesme.find()) {
+            sayaclar[1]++;
+        }
+
         return sayaclar;
     }
 }
