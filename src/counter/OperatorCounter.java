@@ -55,4 +55,17 @@ public class OperatorCounter {
         // #include ve onun < > kısmını kaldır
         return icerik.replaceAll("#include\\s*<[^>]*>", "");
     }
+
+    private static int[] operatorSay(String icerik) {
+        int[] sayaclar = new int[3]; // Tekli, ikili, üçlü operatörler için sayaçlar
+        
+     // Tekli operatörler (++, --, !, ~, &, *, +, -)
+        Pattern tekliDesen = Pattern.compile("(?<![-+!~&*])\\+\\+|--(?![-+])|!(?![=])|~(?![=])|(?<![&])&(?![&=*])|\\*(?![*=])(?!\\s*[a-zA-Z0-9(])|(?<!\\d)[+-]\\d+");
+        Matcher tekliEslesme = tekliDesen.matcher(icerik);
+        while (tekliEslesme.find()) {
+            sayaclar[0]++;
+        }
+
+        return sayaclar;
+    }
 }
