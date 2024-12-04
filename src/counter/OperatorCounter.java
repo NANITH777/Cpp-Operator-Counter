@@ -1,95 +1,95 @@
-package counter; 
+package counter;
 
 import java.io.*;
 import java.util.regex.*;
 
 public class OperatorCounter {
     public static void main(String[] args) {
-        BufferedReader okuyucu = new BufferedReader(new InputStreamReader(System.in));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         
         try {
-            System.out.print("Lütfen C++ dosyasının tam yolunu girin: ");
-            String dosyaYolu = okuyucu.readLine();
+            System.out.print("Please enter the full path of the C++ file: ");
+            String filePath = reader.readLine();
             
-            String icerik = dosyaOku(dosyaYolu);
-            icerik = yorumlariKaldir(icerik);
-            icerik = stringleriKaldir(icerik);
-            icerik = includeDirektifleriniKaldir(icerik);
+            String content = readFile(filePath);
+            content = removeComments(content);
+            content = removeStrings(content);
+            content = removeIncludeDirectives(content);
             
-            int[] sayaclar = operatorSay(icerik);
+            int[] counters = countOperators(content);
             
-            System.out.println("Tekli Operatör Sayısı: " + sayaclar[0]);
-            System.out.println("İkili Operatör Sayısı: " + sayaclar[1]);
-            System.out.println("Üçlü Operatör Sayısı: " + sayaclar[2]);
+            System.out.println("Single Operator Count: " + counters[0]);
+            System.out.println("Binary Operator Count: " + counters[1]);
+            System.out.println("Ternary Operator Count: " + counters[2]);
             
         } catch (IOException e) {
-            System.out.println("Dosya okuma hatası: " + e.getMessage());
+            System.out.println("File reading error: " + e.getMessage());
         }
     }
 
-    private static String dosyaOku(String dosyaYolu) throws IOException {
-        StringBuilder icerik = new StringBuilder();
-        try (BufferedReader okuyucu = new BufferedReader(new FileReader(dosyaYolu))) {
-            String satir;
-            while ((satir = okuyucu.readLine()) != null) {
-                icerik.append(satir).append("\n");
+    private static String readFile(String filePath) throws IOException {
+        StringBuilder content = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                content.append(line).append("\n");
             }
         }
-        return icerik.toString();
+        return content.toString();
     }
 
-    private static String yorumlariKaldir(String icerik) {
-        // Çok satırlı yorumları kaldır
-        icerik = icerik.replaceAll("/\\*[^*]*\\*+(?:[^/*][^*]*\\*+)*/", "");
-        // Tek satırlı yorumları kaldır
-        icerik = icerik.replaceAll("//.*", "");
-        return icerik;
+    private static String removeComments(String content) {
+        // Remove multi-line comments
+        content = content.replaceAll("/\\*[^*]*\\*+(?:[^/*][^*]*\\*+)*/", "");
+        // Remove single-line comments
+        content = content.replaceAll("//.*", "");
+        return content;
     }
 
-    private static String stringleriKaldir(String icerik) {
-        // String ifadelerini kaldır
-        return icerik.replaceAll("\"[^\"\\\\]*(\\\\.[^\"\\\\]*)*\"", "");
+    private static String removeStrings(String content) {
+        // Remove string literals
+        return content.replaceAll("\"[^\"\\\\]*(\\\\.[^\"\\\\]*)*\"", "");
     }
 
-    private static String includeDirektifleriniKaldir(String icerik) {
-        // #include ve onun < > kısmını kaldır
-        return icerik.replaceAll("#include\\s*<[^>]*>", "");
+    private static String removeIncludeDirectives(String content) {
+        // Remove #include directives and their < > parts
+        return content.replaceAll("#include\\s*<[^>]*>", "");
     }
 
-    private static int[] operatorSay(String icerik) {
-        int[] sayaclar = new int[3]; // Tekli, ikili, üçlü operatörler için sayaçlar
+    private static int[] countOperators(String content) {
+        int[] counters = new int[3]; // Counters for single, binary, and ternary operators
         
-     // Tekli operatörler (++, --, !, ~, &, *, +, -)
-        Pattern tekliDesen = Pattern.compile("(?<![-+!~&*])\\+\\+|--(?![-+])|!(?![=])|~(?![=])|(?<![&])&(?![&=*])|\\*(?![*=])(?!\\s*[a-zA-Z0-9(])|(?<!\\d)[+-]\\d+");
-        Matcher tekliEslesme = tekliDesen.matcher(icerik);
-        while (tekliEslesme.find()) {
-            sayaclar[0]++;
+        // Single operators (++, --, !, ~, &, *, +, -)
+        Pattern singlePattern = Pattern.compile("(?<![-+!~&*])\\+\\+|--(?![-+])|!(?![=])|~(?![=])|(?<![&])&(?![&=*])|\\*(?![*=])(?!\\s*[a-zA-Z0-9(])|(?<!\\d)[+-]\\d+");
+        Matcher singleMatcher = singlePattern.matcher(content);
+        while (singleMatcher.find()) {
+            counters[0]++;
         }
 
-        // İkili operatörler
-        Pattern ikiliDesen = Pattern.compile(
-    	    "\\+=|-=|\\*=|/=|%=|==|!=|<=|>=|&&|\\|\\||<<|>>|&=|\\|=|\\^=|" + // Karşılaştırma ve atama operatörleri
-    	    "(?<![=!<>])=(?![=])|" + // Basit atama operatörü (=)
-    	    "(?<![+])\\+(?![+=\\d])|" + // Aritmetik operatör (+), rakamdan sonra gelmemesi için
-    	    "(?<![-])\\-(?![-=\\d])|" + // Aritmetik operatör (-), rakamdan sonra gelmemesi için
-    	    "(?<![\\w\\*])\\*(?![=\\w])|" + // Aritmetik operatör (*), Pointer hariç
-    	    "/(?!=)|" +               // Aritmetik operatör (/)
-    	    "%(?!=)|" +               // Aritmetik operatör (%)
-    	    "(?<!<)>(?![>=])|" +      // Karşılaştırma operatörü (>)
-    	    "<(?![<=])"               // Karşılaştırma operatörü (<)
-    	);
-        Matcher ikiliEslesme = ikiliDesen.matcher(icerik);
-        while (ikiliEslesme.find()) {
-            sayaclar[1]++;
+        // Binary operators
+        Pattern binaryPattern = Pattern.compile(
+            "\\+=|-=|\\*=|/=|%=|==|!=|<=|>=|&&|\\|\\||<<|>>|&=|\\|=|\\^=|" + // Comparison and assignment operators
+            "(?<![=!<>])=(?![=])|" + // Simple assignment operator (=)
+            "(?<![+])\\+(?![+=\\d])|" + // Arithmetic operator (+), not followed by a digit
+            "(?<![-])\\-(?![-=\\d])|" + // Arithmetic operator (-), not followed by a digit
+            "(?<![\\w\\*])\\*(?![=\\w])|" + // Arithmetic operator (*), excluding pointers
+            "/(?!=)|" +               // Arithmetic operator (/)
+            "%(?!=)|" +               // Arithmetic operator (%)
+            "(?<!<)>(?![>=])|" +      // Comparison operator (>)
+            "<(?![<=])"               // Comparison operator (<)
+        );
+        Matcher binaryMatcher = binaryPattern.matcher(content);
+        while (binaryMatcher.find()) {
+            counters[1]++;
         }
 
-        // Üçlü operatör
-        Pattern ucluDesen = Pattern.compile("\\?.*?:");
-        Matcher ucluEslesme = ucluDesen.matcher(icerik);
-        while (ucluEslesme.find()) {
-            sayaclar[2]++;
+        // Ternary operator
+        Pattern ternaryPattern = Pattern.compile("\\?.*?:");
+        Matcher ternaryMatcher = ternaryPattern.matcher(content);
+        while (ternaryMatcher.find()) {
+            counters[2]++;
         }
 
-        return sayaclar;
+        return counters;
     }
 }
