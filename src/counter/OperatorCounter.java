@@ -83,6 +83,13 @@ public class OperatorCounter {
             sayaclar[1]++;
         }
 
+        // Üçlü operatör
+        Pattern ucluDesen = Pattern.compile("\\?.*?:");
+        Matcher ucluEslesme = ucluDesen.matcher(icerik);
+        while (ucluEslesme.find()) {
+            sayaclar[2]++;
+        }
+
         return sayaclar;
     }
 }
